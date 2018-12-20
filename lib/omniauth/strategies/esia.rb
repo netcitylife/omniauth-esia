@@ -6,7 +6,6 @@ module OmniAuth
     class Esia < OmniAuth::Strategies::OAuth2
 
       option :name, 'esia'
-      option :client_id, nil
       option :client_options, {
         site:          'https://esia.gosuslugi.ru',
         authorize_url: 'aas/oauth2/ac',
@@ -17,10 +16,27 @@ module OmniAuth
       option :crt_path, 'config/keys/certificate.crt'
       option :access_type, 'online'
 
+      option :extra_info, []
+
       uid { JWT.decode(access_token.token, nil, false).first['urn:esia:sbj_id'] }
 
-      def info
-        @info ||= get_resource
+      info do
+        {
+
+        }
+      end
+
+      extra do
+        data = {}
+
+        options.extra_info.each do |info|
+          method = "get_#{info}"
+          if respond_to?(method)
+            data[info] = send(method)
+          end
+        end
+
+        data
       end
 
       def authorize_params
@@ -37,28 +53,8 @@ module OmniAuth
         ::OAuth2::Client.new(options.client_id, client_secret, deep_symbolize(options.client_options))
       end
 
-      def get_contacts(ctt_id = nil)
-        get_resource('ctts', ctt_id)
-      end
-
-      def get_addresses(addr_id = nil)
-        get_resource('addrs', addr_id)
-      end
-
-      def get_documents(doc_id = nil)
-        get_resource('docs', doc_id)
-      end
-
-      def get_vehicles(vhl_id = nil)
-        get_resource('vhls', vhl_id)
-      end
-
-      def get_organizations
-        get_resource('orgs')
-      end
-
-      def get_kids(kid_id = nil)
-        get_resource('kids', kid_id)
+      def raw_info
+        @raw_info ||= get_resource
       end
 
       protected
@@ -92,6 +88,34 @@ module OmniAuth
 
       def timestamp
         @timestamp ||= Time.now.strftime('%Y.%m.%d %H:%M:%S %z')
+      end
+
+      def get_contacts(ctt_id = nil)
+        @get_contacts ||= get_resource('ctts', ctt_id)
+      end
+
+      def get_addresses(addr_id = nil)
+        @get_addresses ||= get_resource('addrs', addr_id)
+      end
+
+      def get_documents(doc_id = nil)
+        @get_documents ||= get_resource('docs', doc_id)
+      end
+
+      def get_vehicles(vhl_id = nil)
+        @get_vehicles ||= get_resource('vhls', vhl_id)
+      end
+
+      def get_organizations
+        @get_organizations ||= get_resource('orgs')
+      end
+
+      def get_kids(kid_id = nil)
+        @get_kids ||= get_resource('kids', kid_id)
+      end
+
+      def get_passport
+        @get_passport ||= get_documents(raw_info[:rIdDoc])
       end
 
       def get_resource(collection = nil, entity_id = nil, embed = true)
