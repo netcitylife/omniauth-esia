@@ -31,7 +31,7 @@ module OmniAuth
 
         options.extra_info.each do |info|
           method = "get_#{info}"
-          if respond_to?(method)
+          if respond_to?(method, true)
             data[info] = send(method)
           end
         end
