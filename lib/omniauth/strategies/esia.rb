@@ -21,9 +21,7 @@ module OmniAuth
       uid { JWT.decode(access_token.token, nil, false).first['urn:esia:sbj_id'] }
 
       info do
-        {
-
-        }
+        raw_info
       end
 
       extra do
@@ -107,7 +105,7 @@ module OmniAuth
       end
 
       def get_organizations
-        @get_organizations ||= get_resource('orgs')
+        @get_organizations ||= get_resource('roles', nil, false)
       end
 
       def get_kids(kid_id = nil)
