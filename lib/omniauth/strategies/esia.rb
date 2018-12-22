@@ -89,31 +89,31 @@ module OmniAuth
       end
 
       def get_contacts(ctt_id = nil)
-        @get_contacts ||= get_resource('ctts', ctt_id)
+        @get_contacts ||= get_resource('ctts', ctt_id).fetch('elements', [])
       end
 
       def get_addresses(addr_id = nil)
-        @get_addresses ||= get_resource('addrs', addr_id)
+        @get_addresses ||= get_resource('addrs', addr_id).fetch('elements', [])
       end
 
       def get_documents(doc_id = nil)
-        @get_documents ||= get_resource('docs', doc_id)
+        @get_documents ||= get_resource('docs', doc_id).fetch('elements', [])
       end
 
       def get_vehicles(vhl_id = nil)
-        @get_vehicles ||= get_resource('vhls', vhl_id)
+        @get_vehicles ||= get_resource('vhls', vhl_id).fetch('elements', [])
       end
 
       def get_organizations
-        @get_organizations ||= get_resource('roles', nil, false)
+        @get_organizations ||= get_resource('roles', nil, false).fetch('elements', [])
       end
 
       def get_kids(kid_id = nil)
-        @get_kids ||= get_resource('kids', kid_id)
+        @get_kids ||= get_resource('kids', kid_id).fetch('elements', [])
       end
 
       def get_passport
-        @get_passport ||= get_documents(raw_info[:rIdDoc])
+        @get_passport ||= get_documents(raw_info[:rIdDoc])[0]
       end
 
       def get_resource(collection = nil, entity_id = nil, embed = true)
