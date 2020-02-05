@@ -14,8 +14,6 @@ module OmniAuth
       option :scope, 'fullname'
       option :key_path, 'config/keys/private.key'
       option :crt_path, 'config/keys/certificate.crt'
-      option :key_file, nil
-      option :crt_file, nil
       option :access_type, 'online'
 
       option :extra_info, []
@@ -75,8 +73,8 @@ module OmniAuth
       def client_secret
         @client_secret ||= begin
           data   = "#{options.scope}#{timestamp}#{options.client_id}#{state}"
-          key    = options.key_file || OpenSSL::PKey.read(File.read(options.key_path))
-          crt    = options.crt_file || OpenSSL::X509::Certificate.new(File.read(options.crt_path))
+          key    = options.key_path.is_a?(OpenSSL::PKey) ? options.key_path : OpenSSL::PKey.read(File.read(options.key_path))
+          crt    = options.crt_path.is_a?(OpenSSL::X509::Certificate) ? options.crt_path : OpenSSL::X509::Certificate.new(File.read(options.crt_path))
           signed = OpenSSL::PKCS7.sign(crt, key, data, [], OpenSSL::PKCS7::DETACHED)
           Base64.urlsafe_encode64(signed.to_der.to_s.force_encoding('utf-8'), padding: false)
         end
